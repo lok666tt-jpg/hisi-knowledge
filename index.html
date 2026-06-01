@@ -1,0 +1,1476 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>民航机场软件知识库</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #17212f;
+      --muted: #657386;
+      --line: #dbe2ea;
+      --line-strong: #c2ccd8;
+      --brand: #136f63;
+      --brand-strong: #0b574d;
+      --brand-soft: #e6f3f0;
+      --amber: #a65f00;
+      --amber-soft: #fff4de;
+      --blue: #1f5fbf;
+      --blue-soft: #eaf1ff;
+      --red: #af3030;
+      --shadow: 0 10px 30px rgba(24, 35, 51, 0.09);
+      --radius: 8px;
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .58;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px clamp(16px, 4vw, 40px);
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--brand);
+      color: white;
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(18px, 2.6vw, 23px);
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .layout {
+      width: min(1420px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 18px;
+      padding: 18px clamp(14px, 3vw, 32px) 28px;
+    }
+
+    .left-rail, .workspace {
+      min-width: 0;
+    }
+
+    .left-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .search-panel {
+      padding: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 13px;
+      color: #344256;
+      font-weight: 700;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 11px;
+      outline: none;
+      min-height: 42px;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 1.62;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(19, 111, 99, 0.13);
+    }
+
+    .searchbox {
+      position: relative;
+    }
+
+    .searchbox input {
+      padding-left: 38px;
+    }
+
+    .searchbox::before {
+      content: "⌕";
+      position: absolute;
+      left: 13px;
+      top: 9px;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      overflow: hidden;
+      min-height: 40px;
+      background: #fff;
+    }
+
+    .segmented button {
+      background: #fff;
+      color: #3c4858;
+      border-right: 1px solid var(--line);
+      min-width: 0;
+      padding: 8px 6px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .segmented button:last-child { border-right: 0; }
+    .segmented button.active {
+      color: #fff;
+      background: var(--brand);
+      font-weight: 700;
+    }
+
+    .tag-cloud, .category-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      min-height: 30px;
+      border-radius: 999px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: #334155;
+      padding: 6px 10px;
+      font-size: 12px;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .chip.active {
+      background: var(--brand-soft);
+      color: var(--brand-strong);
+      border-color: #8fc6bd;
+      font-weight: 700;
+    }
+
+    .primary, .secondary, .ghost, .danger, .icon-button {
+      min-height: 40px;
+      border-radius: 7px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .primary {
+      color: #fff;
+      background: var(--brand);
+    }
+
+    .primary:hover { background: var(--brand-strong); }
+
+    .secondary {
+      color: var(--brand-strong);
+      background: var(--brand-soft);
+      border: 1px solid #afd7d0;
+    }
+
+    .ghost {
+      color: #344256;
+      background: #fff;
+      border: 1px solid var(--line-strong);
+    }
+
+    .danger {
+      color: var(--red);
+      background: #fff;
+      border: 1px solid #e1b4b4;
+    }
+
+    .icon-button {
+      width: 40px;
+      padding: 0;
+      color: #344256;
+      background: #fff;
+      border: 1px solid var(--line-strong);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 13px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .toolbar h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .toolbar .meta {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .96fr) minmax(360px, 1.1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .result-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .result-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      display: grid;
+      gap: 9px;
+      text-align: left;
+      box-shadow: var(--shadow);
+      transition: border-color .15s ease, transform .15s ease;
+    }
+
+    .result-card:hover {
+      border-color: #9db8c8;
+      transform: translateY(-1px);
+    }
+
+    .result-card.active {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(19, 111, 99, 0.12), var(--shadow);
+    }
+
+    .result-head {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .result-title {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .published {
+      color: var(--brand-strong);
+      background: var(--brand-soft);
+    }
+
+    .draft {
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .category-badge {
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .summary {
+      margin: 0;
+      color: #405168;
+      font-size: 13px;
+      line-height: 1.62;
+      overflow-wrap: anywhere;
+    }
+
+    mark {
+      background: #fff0a8;
+      color: inherit;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mini-tag {
+      border-radius: 999px;
+      background: #f0f4f8;
+      color: #435168;
+      padding: 4px 8px;
+      font-size: 12px;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .result-foot {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .detail {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 82px;
+      max-height: calc(100vh - 104px);
+      overflow: auto;
+    }
+
+    .detail-header {
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 12px;
+    }
+
+    .detail-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .detail h3 {
+      margin: 0;
+      font-size: clamp(18px, 2.3vw, 24px);
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-body {
+      padding: 16px 18px 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      color: #344256;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .answer-box {
+      border: 1px solid #b6d8d2;
+      background: #f3fbf9;
+      border-radius: 7px;
+      padding: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .note-box {
+      border-left: 4px solid var(--amber);
+      background: var(--amber-soft);
+      padding: 11px 13px;
+      line-height: 1.62;
+      overflow-wrap: anywhere;
+    }
+
+    .plain-text {
+      margin: 0;
+      line-height: 1.62;
+      color: #37465a;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .attachment-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .attachment {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 9px;
+      background: #fbfcfe;
+    }
+
+    .file-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 7px;
+      background: #eef3f8;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #435168;
+      font-size: 12px;
+    }
+
+    .attachment strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .attachment span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .editor {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .editor.open { display: block; }
+
+    .editor-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .editor-head h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .editor-body {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .span-2 { grid-column: 1 / -1; }
+
+    .form-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 9px;
+      padding-top: 4px;
+    }
+
+    .file-drop {
+      border: 1px dashed #aab8c7;
+      background: #fbfcfe;
+      border-radius: 7px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .file-drop input {
+      padding: 8px;
+      min-height: 40px;
+    }
+
+    .login-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        linear-gradient(120deg, rgba(19, 111, 99, .12), transparent 42%),
+        linear-gradient(300deg, rgba(31, 95, 191, .12), transparent 48%),
+        var(--bg);
+    }
+
+    .login-panel {
+      width: min(430px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .login-panel .mark {
+      margin-bottom: 16px;
+    }
+
+    .login-panel h1 {
+      margin: 0 0 8px;
+      font-size: 25px;
+    }
+
+    .login-panel p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(20px);
+      background: #182334;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 7px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 30;
+      max-width: min(520px, calc(100vw - 28px));
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .empty {
+      padding: 34px 18px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1040px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .left-rail {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(260px, .48fr);
+        align-items: start;
+      }
+
+      .detail {
+        position: static;
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .brand p {
+        display: none;
+      }
+
+      .layout {
+        padding: 12px 10px 82px;
+        gap: 12px;
+      }
+
+      .left-rail {
+        display: flex;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 10px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .toolbar-actions {
+        justify-content: stretch;
+      }
+
+      .toolbar-actions button {
+        flex: 1 1 auto;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-title-row {
+        flex-direction: column;
+      }
+
+      .detail-title-row .top-actions {
+        width: 100%;
+      }
+
+      .detail-title-row button {
+        flex: 1;
+      }
+
+      .editor-body {
+        grid-template-columns: 1fr;
+      }
+
+      .span-2 { grid-column: auto; }
+
+      .form-actions {
+        grid-column: auto;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .topbar {
+        padding: 10px;
+      }
+
+      .brand {
+        gap: 9px;
+      }
+
+      .mark {
+        width: 34px;
+        height: 34px;
+      }
+
+      .brand h1 {
+        max-width: calc(100vw - 150px);
+      }
+
+      .top-actions .ghost {
+        min-width: 40px;
+        padding: 9px 10px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .result-head, .result-foot {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .attachment {
+        grid-template-columns: 34px minmax(0, 1fr);
+      }
+
+      .attachment .badge {
+        grid-column: 1 / -1;
+        justify-self: start;
+      }
+
+      .primary, .secondary, .ghost, .danger {
+        white-space: normal;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="login" class="login-wrap">
+    <form class="login-panel" id="loginForm">
+      <div class="mark">航</div>
+      <h1>民航机场软件知识库</h1>
+      <p>私有入口已启用。演示账号：admin，密码：admin123。</p>
+      <div class="field">
+        <label for="username">账号</label>
+        <input id="username" autocomplete="username" value="admin" />
+      </div>
+      <div class="field">
+        <label for="password">密码</label>
+        <input id="password" type="password" autocomplete="current-password" value="admin123" />
+      </div>
+      <button class="primary" type="submit" style="width:100%">登录</button>
+    </form>
+  </div>
+
+  <div id="app" class="app-shell hidden">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">航</div>
+        <div>
+          <h1>民航机场软件知识库</h1>
+          <p>机场软件项目问题、答案、注意事项与经验沉淀</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="ghost" id="seedBtn" type="button">重置示例</button>
+        <button class="ghost" id="logoutBtn" type="button">退出</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="left-rail">
+        <section class="panel search-panel">
+          <div class="field">
+            <label for="query">关键词</label>
+            <div class="searchbox">
+              <input id="query" placeholder="搜索航班、行李、AODB、接口、验收..." />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>状态</label>
+            <div class="segmented" id="statusFilter">
+              <button type="button" data-status="published" class="active">已发布</button>
+              <button type="button" data-status="draft">草稿</button>
+              <button type="button" data-status="all">全部</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="categoryFilter">业务分类</label>
+            <select id="categoryFilter">
+              <option value="">全部分类</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>标签</label>
+            <div class="tag-cloud" id="tagCloud"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="stats-grid">
+            <div class="stat"><strong id="publishedCount">0</strong><span>已发布</span></div>
+            <div class="stat"><strong id="draftCount">0</strong><span>草稿</span></div>
+            <div class="stat"><strong id="attachmentCount">0</strong><span>附件</span></div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <div class="toolbar">
+          <div>
+            <h2 id="resultTitle">查询结果</h2>
+            <div class="meta" id="resultMeta">默认展示已发布内容</div>
+          </div>
+          <div class="toolbar-actions">
+            <button class="secondary" id="newCardBtn" type="button">新增卡片</button>
+            <button class="ghost" id="clearFilterBtn" type="button">清空筛选</button>
+          </div>
+        </div>
+
+        <section class="editor" id="editor">
+          <div class="editor-head">
+            <h3 id="editorTitle">新增知识卡片</h3>
+            <button class="icon-button" id="closeEditorBtn" type="button" aria-label="关闭编辑">×</button>
+          </div>
+          <form class="editor-body" id="cardForm">
+            <input type="hidden" id="cardId" />
+            <div class="field span-2">
+              <label for="title">问题 / 标题</label>
+              <input id="title" required placeholder="例如：航班动态接口字段缺失如何回复？" />
+            </div>
+            <div class="field span-2">
+              <label for="answer">标准答案</label>
+              <textarea id="answer" required placeholder="填写可直接复制给项目方或客户的标准回复"></textarea>
+            </div>
+            <div class="field">
+              <label for="category">业务分类</label>
+              <input id="category" list="categoryOptions" placeholder="例如：航显 / AODB / 行李 / 安检" />
+              <datalist id="categoryOptions"></datalist>
+            </div>
+            <div class="field">
+              <label for="status">状态</label>
+              <select id="status">
+                <option value="draft">草稿</option>
+                <option value="published">已发布</option>
+              </select>
+            </div>
+            <div class="field span-2">
+              <label for="scenario">适用场景</label>
+              <textarea id="scenario" placeholder="记录适用项目阶段、系统模块、客户问题背景"></textarea>
+            </div>
+            <div class="field span-2">
+              <label for="notes">注意事项</label>
+              <textarea id="notes" placeholder="记录口径边界、风险提示、需二次确认的条件"></textarea>
+            </div>
+            <div class="field">
+              <label for="tags">标签</label>
+              <input id="tags" placeholder="用逗号分隔，如：航显,接口,验收" />
+            </div>
+            <div class="field">
+              <label for="owner">负责人</label>
+              <input id="owner" value="个人账号" />
+            </div>
+            <div class="field span-2">
+              <label for="attachments">附件</label>
+              <div class="file-drop">
+                <input id="attachments" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv" />
+                <div class="attachment-list" id="pendingFiles"></div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="ghost" id="cancelEditBtn" type="button">取消</button>
+              <button class="secondary" id="saveDraftBtn" type="button">保存草稿</button>
+              <button class="primary" id="publishBtn" type="submit">发布保存</button>
+            </div>
+          </form>
+        </section>
+
+        <div class="content-grid">
+          <section class="result-list" id="resultList"></section>
+          <section class="detail" id="detail"></section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "airport_kb_cards_v1";
+    const SESSION_KEY = "airport_kb_logged_in";
+
+    const sampleCards = [
+      {
+        id: crypto.randomUUID(),
+        title: "AODB 航班计划变更后航显未同步，如何答复？",
+        answer: "请先确认 AODB 已生成航班计划变更事件，并核对航显订阅接口是否收到对应航班号、日期、进出港标识与变更字段。若 AODB 事件完整但航显未刷新，可按接口日志、消息队列积压、航显缓存刷新三个方向排查。对外回复时建议说明：系统不会主动生成未接收的数据，需以 AODB 发布记录和接口接收日志作为判断依据。",
+        scenario: "适用于航显系统与 AODB 联调、试运行、生产问题定位。",
+        notes: "不要直接承诺是航显问题。先要求提供航班号、计划日期、变更时间、AODB 发布日志和航显终端截图。",
+        tags: ["AODB", "航显", "接口", "问题定位"],
+        category: "航显系统",
+        owner: "个人账号",
+        status: "published",
+        updatedAt: "2026-05-28 16:20",
+        attachments: [
+          { name: "AODB-FIDS-interface-checklist.pdf", type: "pdf", parsed: true, extractedText: "AODB 航显 接口 字段 航班号 日期 进出港标识 变更事件 消息队列 缓存刷新" }
+        ]
+      },
+      {
+        id: crypto.randomUUID(),
+        title: "行李转盘分配规则与现场人工调整冲突时怎么处理？",
+        answer: "系统自动分配结果应以当前规则配置、资源占用状态和航班保障时间为依据。现场如需人工调整，应通过授权账号在操作界面完成，并保留操作人、调整时间、调整前后资源、原因备注。对外沟通时可说明：系统支持规则自动分配与人工干预并存，最终显示以最后一次有效发布结果为准。",
+        scenario: "适用于 BRS/BHS、资源分配、离港保障协同场景。",
+        notes: "需要区分系统规则结果、人工调整结果、最终发布结果。争议问题优先查看操作审计。",
+        tags: ["行李", "资源分配", "审计", "现场保障"],
+        category: "行李系统",
+        owner: "个人账号",
+        status: "published",
+        updatedAt: "2026-05-21 09:45",
+        attachments: [
+          { name: "belt-allocation-rules.xlsx", type: "xlsx", parsed: true, extractedText: "行李 转盘 分配规则 人工调整 操作审计 资源占用 保障时间 发布结果" }
+        ]
+      },
+      {
+        id: crypto.randomUUID(),
+        title: "验收阶段客户要求新增报表字段，是否算需求变更？",
+        answer: "建议按合同范围、需求规格说明书、已确认原型和验收用例共同判断。若新增字段未在已确认范围内，且需要新增数据来源、接口改造、计算逻辑或页面改动，应作为需求变更评估工作量和交付影响。若仅是已有字段展示位置或名称调整，可按验收问题单处理。",
+        scenario: "适用于项目验收、需求边界确认、变更评估。",
+        notes: "答复时避免只说“不能做”。要给出判断依据、影响项和下一步处理路径。",
+        tags: ["验收", "需求变更", "报表", "项目管理"],
+        category: "项目交付",
+        owner: "个人账号",
+        status: "published",
+        updatedAt: "2026-05-18 14:12",
+        attachments: []
+      },
+      {
+        id: crypto.randomUUID(),
+        title: "安检通道排队数据接入大屏的字段口径",
+        answer: "待与安检设备厂家确认实时排队人数、平均等待时长、通道开闭状态的采集频率和异常值规则后，再形成统一回复。",
+        scenario: "适用于安检态势大屏和运行指挥中心数据接入。",
+        notes: "需确认设备厂家接口文档版本。",
+        tags: ["安检", "大屏", "接口口径"],
+        category: "运行指挥",
+        owner: "个人账号",
+        status: "draft",
+        updatedAt: "2026-05-30 11:06",
+        attachments: [
+          { name: "security-lane-api.docx", type: "docx", parsed: false, extractedText: "" }
+        ]
+      }
+    ];
+
+    let cards = [];
+    let selectedId = "";
+    let statusFilter = "published";
+    let activeTags = new Set();
+    let pendingAttachments = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function nowStamp() {
+      const date = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function saveCards() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+    }
+
+    function loadCards() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      cards = saved ? JSON.parse(saved) : sampleCards;
+      if (!saved) saveCards();
+      selectedId = cards.find(card => card.status === "published")?.id || cards[0]?.id || "";
+    }
+
+    function normalize(value) {
+      return String(value || "").toLowerCase().trim();
+    }
+
+    function splitTags(value) {
+      return String(value || "")
+        .split(/[,，]/)
+        .map(tag => tag.trim())
+        .filter(Boolean);
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function highlight(text, query) {
+      const clean = escapeHtml(text);
+      const key = String(query || "").trim();
+      if (!key) return clean;
+      const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return clean.replace(new RegExp(escaped, "gi"), match => `<mark>${match}</mark>`);
+    }
+
+    function searchableText(card) {
+      const attachmentText = (card.attachments || []).map(file => `${file.name} ${file.extractedText || ""}`).join(" ");
+      return [
+        card.title, card.answer, card.scenario, card.notes, card.category,
+        (card.tags || []).join(" "), attachmentText
+      ].join(" ");
+    }
+
+    function getFilteredCards() {
+      const query = normalize($("query").value);
+      const category = $("categoryFilter").value;
+      return cards
+        .filter(card => statusFilter === "all" || card.status === statusFilter)
+        .filter(card => !category || card.category === category)
+        .filter(card => activeTags.size === 0 || [...activeTags].every(tag => (card.tags || []).includes(tag)))
+        .filter(card => !query || normalize(searchableText(card)).includes(query))
+        .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+    }
+
+    function renderStats() {
+      $("publishedCount").textContent = cards.filter(card => card.status === "published").length;
+      $("draftCount").textContent = cards.filter(card => card.status === "draft").length;
+      $("attachmentCount").textContent = cards.reduce((sum, card) => sum + (card.attachments || []).length, 0);
+    }
+
+    function renderFilters() {
+      const categories = [...new Set(cards.map(card => card.category).filter(Boolean))].sort();
+      const selectedCategory = $("categoryFilter").value;
+      $("categoryFilter").innerHTML = `<option value="">全部分类</option>` + categories
+        .map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
+        .join("");
+      $("categoryFilter").value = categories.includes(selectedCategory) ? selectedCategory : "";
+
+      $("categoryOptions").innerHTML = categories
+        .map(category => `<option value="${escapeHtml(category)}"></option>`)
+        .join("");
+
+      const tags = [...new Set(cards.flatMap(card => card.tags || []))].sort();
+      $("tagCloud").innerHTML = tags.map(tag => `
+        <button type="button" class="chip ${activeTags.has(tag) ? "active" : ""}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>
+      `).join("");
+    }
+
+    function snippet(card, query) {
+      const fields = [card.answer, card.notes, card.scenario, ...(card.attachments || []).map(file => file.extractedText)];
+      const q = normalize(query);
+      const source = fields.find(field => q && normalize(field).includes(q)) || card.answer || card.scenario || card.notes || "";
+      return source.length > 128 ? `${source.slice(0, 128)}...` : source;
+    }
+
+    function renderResults() {
+      const query = $("query").value;
+      const filtered = getFilteredCards();
+      $("resultTitle").textContent = `查询结果 ${filtered.length}`;
+      $("resultMeta").textContent = statusFilter === "published" ? "默认展示已发布内容" : statusFilter === "draft" ? "当前查看草稿内容" : "当前查看全部内容";
+
+      if (!filtered.some(card => card.id === selectedId)) {
+        selectedId = filtered[0]?.id || "";
+      }
+
+      $("resultList").innerHTML = filtered.length ? filtered.map(card => `
+        <button type="button" class="result-card ${card.id === selectedId ? "active" : ""}" data-id="${card.id}">
+          <div class="result-head">
+            <h3 class="result-title">${highlight(card.title, query)}</h3>
+            <span class="badge ${card.status === "published" ? "published" : "draft"}">${card.status === "published" ? "已发布" : "草稿"}</span>
+          </div>
+          <p class="summary">${highlight(snippet(card, query), query)}</p>
+          <div class="tags">
+            <span class="mini-tag">${escapeHtml(card.category || "未分类")}</span>
+            ${(card.tags || []).map(tag => `<span class="mini-tag">${escapeHtml(tag)}</span>`).join("")}
+          </div>
+          <div class="result-foot">
+            <span>${escapeHtml(card.updatedAt)}</span>
+            <span>${(card.attachments || []).length} 个附件</span>
+          </div>
+        </button>
+      `).join("") : `<div class="empty">没有命中内容。可以调整关键词、状态或标签，也可以新增一条知识卡片。</div>`;
+
+      renderDetail();
+    }
+
+    function fileType(name) {
+      const ext = String(name || "").split(".").pop().toLowerCase();
+      if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "img";
+      return ext || "file";
+    }
+
+    function renderDetail() {
+      const card = cards.find(item => item.id === selectedId);
+      if (!card) {
+        $("detail").innerHTML = `<div class="empty">请选择一条知识卡片。</div>`;
+        return;
+      }
+
+      const attachments = (card.attachments || []).map(file => `
+        <div class="attachment">
+          <div class="file-icon">${escapeHtml(fileType(file.name)).slice(0, 4).toUpperCase()}</div>
+          <div>
+            <strong title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</strong>
+            <span>${file.parsed ? "附件文字已解析，可搜索" : "附件内容未解析"}</span>
+          </div>
+          <span class="badge ${file.parsed ? "published" : "draft"}">${file.parsed ? "已解析" : "未解析"}</span>
+        </div>
+      `).join("");
+
+      $("detail").innerHTML = `
+        <div class="detail-header">
+          <div class="detail-title-row">
+            <div>
+              <h3>${escapeHtml(card.title)}</h3>
+              <div class="tags" style="margin-top:10px">
+                <span class="badge ${card.status === "published" ? "published" : "draft"}">${card.status === "published" ? "已发布" : "草稿"}</span>
+                <span class="badge category-badge">${escapeHtml(card.category || "未分类")}</span>
+              </div>
+            </div>
+            <div class="top-actions">
+              <button class="secondary" type="button" id="copyAnswerBtn">复制答案</button>
+              <button class="ghost" type="button" id="editCardBtn">编辑</button>
+            </div>
+          </div>
+          <div class="tags">
+            ${(card.tags || []).map(tag => `<span class="mini-tag">${escapeHtml(tag)}</span>`).join("")}
+          </div>
+        </div>
+        <div class="detail-body">
+          <section>
+            <div class="section-title">标准答案</div>
+            <div class="answer-box">${escapeHtml(card.answer)}</div>
+          </section>
+          <section>
+            <div class="section-title">适用场景</div>
+            <p class="plain-text">${escapeHtml(card.scenario || "未填写")}</p>
+          </section>
+          <section>
+            <div class="section-title">注意事项</div>
+            <div class="note-box">${escapeHtml(card.notes || "未填写")}</div>
+          </section>
+          <section>
+            <div class="section-title">附件</div>
+            <div class="attachment-list">${attachments || `<div class="empty">暂无附件</div>`}</div>
+          </section>
+          <section>
+            <div class="section-title">更新时间</div>
+            <p class="plain-text">${escapeHtml(card.updatedAt)}　负责人：${escapeHtml(card.owner || "个人账号")}</p>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      renderStats();
+      renderFilters();
+      renderResults();
+    }
+
+    function showToast(message) {
+      $("toast").textContent = message;
+      $("toast").classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => $("toast").classList.remove("show"), 1800);
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const helper = document.createElement("textarea");
+      helper.value = text;
+      helper.setAttribute("readonly", "");
+      helper.style.position = "fixed";
+      helper.style.left = "-9999px";
+      document.body.appendChild(helper);
+      helper.select();
+      document.execCommand("copy");
+      helper.remove();
+    }
+
+    function openEditor(card) {
+      pendingAttachments = [];
+      $("editor").classList.add("open");
+      $("editorTitle").textContent = card ? "编辑知识卡片" : "新增知识卡片";
+      $("cardId").value = card?.id || "";
+      $("title").value = card?.title || "";
+      $("answer").value = card?.answer || "";
+      $("scenario").value = card?.scenario || "";
+      $("notes").value = card?.notes || "";
+      $("tags").value = (card?.tags || []).join(", ");
+      $("category").value = card?.category || "";
+      $("status").value = card?.status || "draft";
+      $("owner").value = card?.owner || "个人账号";
+      $("attachments").value = "";
+      $("pendingFiles").innerHTML = card?.attachments?.length
+        ? card.attachments.map(file => `<div class="attachment"><div class="file-icon">${escapeHtml(fileType(file.name)).slice(0, 4).toUpperCase()}</div><div><strong>${escapeHtml(file.name)}</strong><span>已保存</span></div></div>`).join("")
+        : "";
+      $("editor").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function closeEditor() {
+      $("editor").classList.remove("open");
+      $("cardForm").reset();
+      $("pendingFiles").innerHTML = "";
+      pendingAttachments = [];
+    }
+
+    async function readPendingFile(file) {
+      const type = fileType(file.name);
+      let parsed = false;
+      let extractedText = "";
+      if (["txt", "csv"].includes(type)) {
+        extractedText = await file.text();
+        parsed = true;
+      } else if (["pdf", "doc", "docx", "xls", "xlsx"].includes(type)) {
+        extractedText = `${file.name} ${type} 文档附件待后端解析`;
+        parsed = false;
+      }
+      return { name: file.name, type, parsed, extractedText };
+    }
+
+    async function handleFileChange(event) {
+      const files = Array.from(event.target.files || []);
+      pendingAttachments = await Promise.all(files.map(readPendingFile));
+      $("pendingFiles").innerHTML = pendingAttachments.map(file => `
+        <div class="attachment">
+          <div class="file-icon">${escapeHtml(file.type).slice(0, 4).toUpperCase()}</div>
+          <div>
+            <strong title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</strong>
+            <span>${file.parsed ? "已读取文本" : "保存后等待后端解析"}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function formToCard(forcedStatus) {
+      const existing = cards.find(card => card.id === $("cardId").value);
+      const existingAttachments = existing?.attachments || [];
+      return {
+        id: existing?.id || crypto.randomUUID(),
+        title: $("title").value.trim(),
+        answer: $("answer").value.trim(),
+        scenario: $("scenario").value.trim(),
+        notes: $("notes").value.trim(),
+        tags: splitTags($("tags").value),
+        category: $("category").value.trim() || "未分类",
+        owner: $("owner").value.trim() || "个人账号",
+        status: forcedStatus || $("status").value,
+        updatedAt: nowStamp(),
+        attachments: [...existingAttachments, ...pendingAttachments]
+      };
+    }
+
+    function saveForm(forcedStatus) {
+      if (!$("title").value.trim() || !$("answer").value.trim()) {
+        showToast("请填写问题/标题和标准答案");
+        return;
+      }
+      const card = formToCard(forcedStatus);
+      const index = cards.findIndex(item => item.id === card.id);
+      if (index >= 0) cards[index] = card;
+      else cards.unshift(card);
+      selectedId = card.id;
+      saveCards();
+      closeEditor();
+      renderAll();
+      showToast(card.status === "published" ? "已发布保存" : "已保存草稿");
+    }
+
+    function clearFilters() {
+      $("query").value = "";
+      $("categoryFilter").value = "";
+      activeTags.clear();
+      statusFilter = "published";
+      document.querySelectorAll("#statusFilter button").forEach(btn => btn.classList.toggle("active", btn.dataset.status === statusFilter));
+      renderAll();
+    }
+
+    function login() {
+      $("login").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      loadCards();
+      renderAll();
+    }
+
+    document.addEventListener("click", async (event) => {
+      const resultCard = event.target.closest(".result-card");
+      if (resultCard) {
+        selectedId = resultCard.dataset.id;
+        renderResults();
+        return;
+      }
+
+      const tagButton = event.target.closest("[data-tag]");
+      if (tagButton) {
+        const tag = tagButton.dataset.tag;
+        if (activeTags.has(tag)) activeTags.delete(tag);
+        else activeTags.add(tag);
+        renderAll();
+        return;
+      }
+
+      if (event.target.id === "copyAnswerBtn") {
+        const card = cards.find(item => item.id === selectedId);
+        if (card) {
+          await copyText(card.answer);
+          showToast("标准答案已复制");
+        }
+      }
+
+      if (event.target.id === "editCardBtn") {
+        openEditor(cards.find(item => item.id === selectedId));
+      }
+    });
+
+    $("loginForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      if ($("username").value.trim() === "admin" && $("password").value === "admin123") {
+        sessionStorage.setItem(SESSION_KEY, "1");
+        login();
+      } else {
+        showToast("账号或密码不正确");
+      }
+    });
+
+    $("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      $("app").classList.add("hidden");
+      $("login").classList.remove("hidden");
+    });
+
+    $("seedBtn").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      loadCards();
+      clearFilters();
+      showToast("示例数据已重置");
+    });
+
+    $("query").addEventListener("input", renderResults);
+    $("categoryFilter").addEventListener("change", renderResults);
+    $("newCardBtn").addEventListener("click", () => openEditor(null));
+    $("clearFilterBtn").addEventListener("click", clearFilters);
+    $("closeEditorBtn").addEventListener("click", closeEditor);
+    $("cancelEditBtn").addEventListener("click", closeEditor);
+    $("saveDraftBtn").addEventListener("click", () => saveForm("draft"));
+    $("cardForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveForm("published");
+    });
+    $("attachments").addEventListener("change", handleFileChange);
+
+    $("statusFilter").addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-status]");
+      if (!btn) return;
+      statusFilter = btn.dataset.status;
+      document.querySelectorAll("#statusFilter button").forEach(item => item.classList.toggle("active", item === btn));
+      renderResults();
+    });
+
+    if (sessionStorage.getItem(SESSION_KEY) === "1") login();
+  </script>
+</body>
+</html>
